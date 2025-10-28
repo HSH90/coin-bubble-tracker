@@ -3,8 +3,8 @@ from datetime import datetime
 import os
 
 # ----- تنظیم آستانه‌ها -----
-BUBBLE_UPPER_THRESHOLD = 19  # درصد حباب بالاتر از این مقدار → هشدار فروش
-BUBBLE_LOWER_THRESHOLD = 12   # درصد حباب پایین‌تر از این مقدار → هشدار خرید
+BUBBLE_UPPER_THRESHOLD = 12  # درصد حباب بالاتر از این مقدار → هشدار فروش
+BUBBLE_LOWER_THRESHOLD = 5   # درصد حباب پایین‌تر از این مقدار → هشدار خرید
 
 # دریافت توکن و chat_id از GitHub Secrets
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -34,4 +34,38 @@ def fetch_data():
 
     # داده‌ها
     gold_ounce_usd = float(data["gold_ounce"])
-    usd_irr = float(d_
+    usd_irr = float(data["usd"])
+    coin_emami_market = float(data["coin_emami"])
+
+    # محاسبه قیمت ذاتی سکه
+    coin_intrinsic = gold_ounce_usd * 0.235 * usd_irr
+
+    # میزان و درصد حباب
+    bubble_amount = coin_emami_market - coin_intrinsic
+    bubble_percent = (bubble_amount / coin_intrinsic) * 100
+
+    # خروجی
+    result = {
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "gold_ounce_usd": gold_ounce_usd,
+        "usd_irr": usd_irr,
+        "coin_emami_market": coin_emami_market,
+        "coin_emami_intrinsic": int(coin_intrinsic),
+        "bubble_percent": round(bubble_percent, 2),
+        "bubble_amount": int(bubble_amount)
+    }
+
+    print(result)
+
+    # بررسی آستانه‌ها و ارسال هشدار تلگرام
+    if bubble_percent >= BUBBLE_UPPER_THRESHOLD:
+        message = f"⚠️ هشدار: حباب سکه بالای {BUBBLE_UPPER_THRESHOLD}% است!\n{result}"
+        send_telegram(message)
+    elif bubble_percent <= BUBBLE_LOWER_THRESHOLD:
+        message = f"⚠️ هشدار: حباب سکه پایین‌تر از {BUBBLE_LOWER_THRESHOLD}% است!\n{result}"
+        send_telegram(message)
+
+    return result
+
+if __name__ == "__main__":
+    fetch_data()
