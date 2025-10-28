@@ -3,8 +3,8 @@ from datetime import datetime
 import os
 
 # ----- تنظیم آستانه‌ها -----
-BUBBLE_UPPER_THRESHOLD = 12  # درصد حباب بالاتر از این مقدار → هشدار فروش
-BUBBLE_LOWER_THRESHOLD = 5   # درصد حباب پایین‌تر از این مقدار → هشدار خرید
+BUBBLE_UPPER_THRESHOLD = 19  # درصد حباب بالاتر از این مقدار → هشدار فروش
+BUBBLE_LOWER_THRESHOLD = 12   # درصد حباب پایین‌تر از این مقدار → هشدار خرید
 
 # دریافت توکن و chat_id از GitHub Secrets
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
